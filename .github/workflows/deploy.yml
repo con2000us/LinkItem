@@ -1,0 +1,26 @@
+name: Deploy to Web Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to web server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          # 如果使用SSH密钥认证，请注释掉password行，使用以下行
+          # key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/html/LinkItem
+            git fetch
+            git reset --hard origin/main 
