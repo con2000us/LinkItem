@@ -23,4 +23,4 @@ jobs:
           script: |
             cd /var/www/html/LinkItem
             git fetch
-            git reset --hard origin/main 
+            git reset --hard origin/master 
