@@ -17,8 +17,8 @@ function fetchLinks() {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // SQL query to select all data from links table
-    $sql = "SELECT * FROM links";
+    // SQL query to select all data from links table, ordered by linkOrder
+    $sql = "SELECT * FROM links ORDER BY linkOrder ASC";
     $result = $conn->query($sql);
 
     // Check if there are results
@@ -30,7 +30,7 @@ function fetchLinks() {
         // Return the object
         return json_encode($linksObject);
     } else {
-        return "0 results";
+        return "[]";
     }
 
     // Close connection
