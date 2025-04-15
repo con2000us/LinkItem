@@ -21,7 +21,7 @@ function fetchLinks() {
     $sql = "SELECT l.*, h.host_name, h.host_ip, g.group_id, g.group_name, g.group_info
             FROM links l
             LEFT JOIN hosts h ON l.lanhost = h.host_id
-            LEFT JOIN groups g ON l.hostGroup = g.group_id
+            LEFT JOIN `groups` g ON l.hostGroup = g.group_id
             ORDER BY 
                 CASE 
                     WHEN h.host_name = 'iStoreOS' THEN 0
@@ -101,7 +101,7 @@ function fetchGroups() {
     }
 
     // SQL query to select all groups
-    $sql = "SELECT * FROM groups ORDER BY group_id ASC";
+    $sql = "SELECT * FROM `groups` ORDER BY group_id ASC";
     $result = $conn->query($sql);
 
     // Check if there are results
