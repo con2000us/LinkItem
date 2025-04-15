@@ -21,7 +21,7 @@ function fetchLinks() {
     $sql = "SELECT l.*, h.host_name, h.host_ip
             FROM links l
             LEFT JOIN hosts h ON l.lanhost = h.host_id
-            ORDER BY l.linkOrder ASC, l.hostGroup ASC";
+            ORDER BY l.hostGroup ASC, l.linkOrder ASC";
     $result = $conn->query($sql);
 
     // Check if there are results
