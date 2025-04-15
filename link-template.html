@@ -7,7 +7,7 @@
             <!-- 该列应该显示的hostGroup组 -->
             <div v-for="(links, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
                 <!-- 该hostGroup的标题 -->
-                <h3 class="hostgroup-title" v-if="links.length > 0">{{ groupName }}</h3>
+                <h3 class="hostgroup-title" v-if="links.length > 0">{{ links[0].group_name || groupName }}</h3>
                 <div class="cards-column">
                     <div v-for="(link, index) in links" :key="link.link_id" class="card-container">
                         <div class="card" 

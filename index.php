@@ -266,8 +266,8 @@ $linksData = fetchLinks();
                 // 获取每列显示的hostGroup
                 getHostGroupsForColumn(columnIndex) {
                     // 所有hostGroup分组
-                    const allGroups = Object.entries(this.hostGroupedLinks).map(([groupName, links]) => {
-                        return { groupName, links };
+                    const allGroups = Object.entries(this.hostGroupedLinks).map(([groupId, links]) => {
+                        return { groupId, links };
                     });
                     
                     // 如果没有分组，返回空数组
@@ -282,7 +282,7 @@ $linksData = fetchLinks();
                         if (columnIndex < totalGroups) {
                             const group = allGroups[columnIndex];
                             const result = {};
-                            result[group.groupName] = group.links;
+                            result[group.groupId] = group.links;
                             return result;
                         }
                         return {};
@@ -299,7 +299,7 @@ $linksData = fetchLinks();
                     // 构建结果对象
                     const result = {};
                     columnGroups.forEach(group => {
-                        result[group.groupName] = group.links;
+                        result[group.groupId] = group.links;
                     });
                     
                     return result;
