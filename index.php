@@ -111,7 +111,40 @@ $linksData = fetchLinks();
                 }
             },
             methods: {
-                // 为每列获取主机组
+                // 获取某一列应该显示的链接
+                getLinksForColumn(hostGroups, columnIndex) {
+                    if (!hostGroups || !Array.isArray(hostGroups)) return [];
+                    
+                    // 平铺所有链接，并添加显示索引和主机标签信息
+                    const flattenedLinks = [];
+                    let globalIndex = 0;
+                    
+                    hostGroups.forEach(host => {
+                        if (!host.links || !host.links.length) return;
+                        
+                        let firstInHost = true;
+                        host.links.forEach((link, index) => {
+                            // 添加显示索引和是否显示主机名标志
+                            const enhancedLink = {...link};
+                            enhancedLink.displayIndex = String(index + 1).padStart(2, '0');
+                            enhancedLink.showHostName = firstInHost;
+                            firstInHost = false;
+                            flattenedLinks.push(enhancedLink);
+                            globalIndex++;
+                        });
+                    });
+                    
+                    // 分成4列，使用的分配算法让每列链接数量尽量平均
+                    const totalLinks = flattenedLinks.length;
+                    const linksPerColumn = Math.ceil(totalLinks / 4);
+                    
+                    const startIndex = columnIndex * linksPerColumn;
+                    const endIndex = Math.min(startIndex + linksPerColumn, totalLinks);
+                    
+                    return flattenedLinks.slice(startIndex, endIndex);
+                },
+                
+                // 为每列获取主机组 (不再使用)
                 getHostsForColumn(hosts, columnIndex) {
                     if (!hosts || !Array.isArray(hosts)) return [];
                     
