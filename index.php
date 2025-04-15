@@ -7,102 +7,123 @@ $linksData = fetchLinks();
 ?>
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>連結轉運圖</title>
-    <!-- 加载 Vue.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-    <!-- 添加 Font Awesome 图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Link Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <style>
         body {
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f7fa;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
-    <!-- 链接模板将在这里渲染 -->
-    <?php include 'link-template.html'; ?>
+    <div class="container">
+        <h1>Link Manager</h1>
+        <div id="app">
+            <div v-if="links.length === 0">Loading...</div>
+            <div v-else v-for="(group, host) in groupedLinks" :key="host">
+                <div v-if="group.length > 0">
+                    <?php include 'link-template.html'; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // 初始化 Vue 应用
-        new Vue({
-            el: '#link-cards',
-            data: {
-                links: []
-            },
-            computed: {
-                // 按照 host_name 和 host_ip 分组链接
-                groupedLinks() {
-                    const groups = {};
-                    const sortedLinks = [...this.links];
-                    
-                    // 按 host_name/host_ip 分组
-                    sortedLinks.forEach(link => {
-                        const hostKey = link.host_name || link.host_ip || 'other';
-                        if (!groups[hostKey]) {
-                            groups[hostKey] = [];
-                        }
-                        groups[hostKey].push(link);
-                    });
-                    
-                    // 转换为数组格式返回
-                    return Object.values(groups);
-                }
-            },
-            created() {
-                // 解析从 PHP 获取的数据
-                let rawLinks = <?php echo $linksData; ?>;
-                
-                // 处理每个链接项的 cellCSS
-                this.links = rawLinks.map(link => {
-                    // 尝试解析 cellCSS JSON
-                    if (link.cellCSS && link.cellCSS.trim() !== '') {
-                        try {
-                            const cssData = JSON.parse(link.cellCSS);
-                            link.customStyle = cssData;
-                        } catch (e) {
-                            console.error('解析 cellCSS 时出错:', e);
-                            link.customStyle = null;
-                        }
-                    }
-                    return link;
+    new Vue({
+        el: '#app',
+        data: {
+            links: []
+        },
+        created() {
+            // Fetch links data when Vue instance is created
+            fetch('fetch_links.php')
+                .then(response => response.json())
+                .then(data => {
+                    this.links = data;
+                    console.log('Data loaded:', this.links); // Debug output
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    // Display raw response if there's an error
+                    fetch('fetch_links.php')
+                        .then(response => response.text())
+                        .then(text => {
+                            console.log('Raw response:', text);
+                        });
                 });
-            },
-            methods: {
-                // 构建内网链接
-                buildLanUrl(link) {
-                    if (!link.host_ip) return '#';
-                    
-                    let url = 'http://' + link.host_ip;
-                    if (link.lanport && link.lanport != 80) {
-                        url += ':' + link.lanport;
-                    }
-                    if (link.lanDir) {
-                        url += '/' + link.lanDir;
-                    }
-                    return url;
-                },
+        },
+        computed: {
+            groupedLinks() {
+                // Group links by host
+                const groups = {};
                 
-                // 构建外网链接
-                buildOuterUrl(link) {
-                    if (!link.outerhost) return '#';
+                this.links.forEach(link => {
+                    // 確定主機名稱 - 優先使用 host_name，然後是 host_ip，最後是 lanhost
+                    const hostName = link.host_name || link.host_ip || link.lanhost || 'Unknown';
                     
-                    let url = 'http://' + link.outerhost;
-                    if (link.outerport && link.outerport != 80) {
-                        url += ':' + link.outerport;
+                    // 確定主機 IP - 優先使用 host_ip，然後是 lanhost
+                    link.effectiveHostIp = link.host_ip || link.lanhost;
+                    
+                    if (!groups[hostName]) {
+                        groups[hostName] = [];
                     }
-                    if (link.outerDir) {
-                        url += '/' + link.outerDir;
-                    }
-                    return url;
-                }
+                    groups[hostName].push(link);
+                });
+                
+                return groups;
             }
-        });
+        },
+        methods: {
+            buildLanUrl(link) {
+                // 構建內部 URL
+                if (!link.effectiveHostIp) return '#';
+                
+                let host = link.effectiveHostIp;
+                let port = link.lanport ? `:${link.lanport}` : '';
+                let path = link.lanpath || '';
+                
+                // 確保路徑開始有斜杠
+                if (path && !path.startsWith('/')) {
+                    path = '/' + path;
+                }
+                
+                return `http://${host}${port}${path}`;
+            },
+            buildOuterUrl(link) {
+                // 構建外部 URL
+                if (!link.outerhost) return '#';
+                
+                let host = link.outerhost;
+                let port = link.outerport ? `:${link.outerport}` : '';
+                let path = link.outerpath || '';
+                
+                // 確保路徑開始有斜杠
+                if (path && !path.startsWith('/')) {
+                    path = '/' + path;
+                }
+                
+                return `http://${host}${port}${path}`;
+            }
+        }
+    });
     </script>
 </body>
 </html>
