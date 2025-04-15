@@ -22,13 +22,6 @@
                                         {{ link.page_name }}
                                         <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
                                     </h3>
-                                    <!-- 只显示链接文字，不包含图标 -->
-                                    <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
-                                        {{ link.useOuterLink ? 
-                                           (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.outerDir ? '/' + link.outerDir : '')) : 
-                                           (link.host_ip + (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + (link.lanDir ? '/' + link.lanDir : '')) 
-                                        }}
-                                    </span>
                                 </div>
                                 <div class="card-info">
                                     <p class="info-text">{{ link.page_info }}</p>
@@ -47,10 +40,6 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                            <a class="link-btn" @click.stop="openLink(link)" :title="getActiveUrl(link)">
-                                                <i class="fas fa-link"></i>
-                                                <span class="btn-text">打开</span>
-                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -195,6 +184,7 @@
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    margin: 15px 0px 0px 0px;
 }
 
 .info-text {
