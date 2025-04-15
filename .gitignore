@@ -31,4 +31,5 @@ Thumbs.db
 *.swo 
 
 # Custom files
-push.bat 
+push.bat
+config.php 
