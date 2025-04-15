@@ -35,6 +35,25 @@ $linksData = fetchLinks();
             data: {
                 links: []
             },
+            computed: {
+                // 按照 lanhost 分组链接
+                groupedLinks() {
+                    const groups = {};
+                    const sortedLinks = [...this.links];
+                    
+                    // 按 lanhost 分组
+                    sortedLinks.forEach(link => {
+                        const host = link.lanhost || 'other';
+                        if (!groups[host]) {
+                            groups[host] = [];
+                        }
+                        groups[host].push(link);
+                    });
+                    
+                    // 转换为数组格式返回
+                    return Object.values(groups);
+                }
+            },
             created() {
                 // 解析从 PHP 获取的数据
                 let rawLinks = <?php echo $linksData; ?>;
