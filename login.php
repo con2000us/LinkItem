@@ -9,8 +9,8 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 // 預設的用戶憑據 - 實際使用時請更改
 $valid_username = "admin";
-// 暫時使用純文本密碼來進行比較
-$valid_password = "password";
+// 使用密碼雜湊存儲密碼
+$valid_password_hash = '$2y$10$P5vK6YNY/EPnGBm2BfPQO.TC2NaoiuIdIPPX/MHeIP47WRc8/9ifC';
 
 // 你可以使用以下代碼生成新的密碼雜湊
 // echo password_hash("你的密碼", PASSWORD_DEFAULT);
@@ -37,8 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'] ?? '';
     $remember_me = isset($_POST['remember_me']);
     
-    // 使用純文本密碼進行比較
-    if ($username === $valid_username && $password === $valid_password) {
+    // 使用密碼雜湊驗證
+    if ($username === $valid_username && password_verify($password, $valid_password_hash)) {
         $_SESSION['authenticated'] = true;
         $_SESSION['username'] = $username;
         
