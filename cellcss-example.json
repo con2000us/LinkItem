@@ -1,0 +1,15 @@
+{
+  "cardClass": "custom-card",
+  "cardStyle": {
+    "borderLeft": "5px solid #9b59b6"
+  },
+  "numberStyle": {
+    "backgroundColor": "#f8f9fa",
+    "color": "#9b59b6"
+  },
+  "contentStyle": {
+    "backgroundColor": "#9b59b6",
+    "--card-bg": "#9b59b6"
+  },
+  "icon": "fas fa-server"
+} 

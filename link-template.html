@@ -1,9 +1,17 @@
 <div id="link-cards" class="ordered-list-container">
     <h1>链接导航</h1>
     <div class="arrow-cards">
-        <div v-for="(link, index) in links" :key="link.link_id" class="arrow-card" :class="'card-' + (index % 4 + 1)">
-            <div class="card-number">{{ String(index + 1).padStart(2, '0') }}</div>
-            <div class="card-content">
+        <div v-for="(link, index) in links" :key="link.link_id" class="arrow-card" 
+             :class="[
+                'card-' + (index % 4 + 1), 
+                link.customStyle && link.customStyle.cardClass
+             ]"
+             :style="link.customStyle && link.customStyle.cardStyle">
+            <div class="card-number" :style="link.customStyle && link.customStyle.numberStyle">
+                <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
+                <span v-else>{{ String(index + 1).padStart(2, '0') }}</span>
+            </div>
+            <div class="card-content" :style="link.customStyle && link.customStyle.contentStyle">
                 <h3>{{ link.page_name }}</h3>
                 <p>{{ link.page_info }}</p>
                 <div class="card-links">
@@ -48,6 +56,10 @@
     color: var(--number-color);
 }
 
+.card-number i {
+    font-size: 24px;
+}
+
 .card-content {
     flex: 1;
     padding: 15px 40px 15px 20px;
@@ -62,7 +74,7 @@
     top: 0;
     border-top: 40px solid transparent;
     border-bottom: 40px solid transparent;
-    border-left: 20px solid var(--card-bg);
+    border-left: 20px solid var(--card-bg, inherit);
     height: 100%;
 }
 

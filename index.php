@@ -14,6 +14,8 @@ $linksData = fetchLinks();
     <title>链接导航</title>
     <!-- 加载 Vue.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- 添加 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -31,7 +33,26 @@ $linksData = fetchLinks();
         new Vue({
             el: '#link-cards',
             data: {
-                links: <?php echo $linksData; ?>
+                links: []
+            },
+            created() {
+                // 解析从 PHP 获取的数据
+                let rawLinks = <?php echo $linksData; ?>;
+                
+                // 处理每个链接项的 cellCSS
+                this.links = rawLinks.map(link => {
+                    // 尝试解析 cellCSS JSON
+                    if (link.cellCSS && link.cellCSS.trim() !== '') {
+                        try {
+                            const cssData = JSON.parse(link.cellCSS);
+                            link.customStyle = cssData;
+                        } catch (e) {
+                            console.error('解析 cellCSS 时出错:', e);
+                            link.customStyle = null;
+                        }
+                    }
+                    return link;
+                });
             },
             methods: {
                 // 构建内网链接
