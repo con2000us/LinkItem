@@ -144,6 +144,48 @@ $linksData = fetchLinks();
                     return flattenedLinks.slice(startIndex, endIndex);
                 },
                 
+                // 获取每列显示的hostGroup
+                getHostGroupsForColumn(columnIndex) {
+                    // 所有hostGroup分组
+                    const allGroups = Object.entries(this.hostGroupedLinks).map(([groupName, hosts]) => {
+                        return { groupName, hosts };
+                    });
+                    
+                    // 如果没有分组，返回空数组
+                    if (allGroups.length === 0) return {};
+                    
+                    // 根据列数分组，确保每列的hostGroup数量尽量均衡
+                    const totalGroups = allGroups.length;
+                    
+                    // 如果组数小于或等于列数，则平均分配
+                    if (totalGroups <= 4) {
+                        // 如果当前列索引小于总组数，则返回对应的组
+                        if (columnIndex < totalGroups) {
+                            const group = allGroups[columnIndex];
+                            const result = {};
+                            result[group.groupName] = group.hosts;
+                            return result;
+                        }
+                        return {};
+                    }
+                    
+                    // 如果组数大于列数，则计算每列应该显示多少组
+                    const groupsPerColumn = Math.ceil(totalGroups / 4);
+                    const startIdx = columnIndex * groupsPerColumn;
+                    const endIdx = Math.min(startIdx + groupsPerColumn, totalGroups);
+                    
+                    // 获取当前列应该显示的组
+                    const columnGroups = allGroups.slice(startIdx, endIdx);
+                    
+                    // 构建结果对象
+                    const result = {};
+                    columnGroups.forEach(group => {
+                        result[group.groupName] = group.hosts;
+                    });
+                    
+                    return result;
+                },
+                
                 // 为每列获取主机组 (不再使用)
                 getHostsForColumn(hosts, columnIndex) {
                     if (!hosts || !Array.isArray(hosts)) return [];

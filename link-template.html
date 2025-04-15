@@ -1,33 +1,37 @@
 <div id="link-cards" class="ordered-list-container">
     <h1>連結轉運圖</h1>
     
-    <!-- 根据hostGroup分组 -->
-    <div v-for="(groupData, groupName) in hostGroupedLinks" :key="'hostgroup-'+groupName" class="hostgroup-container">
-        <h2 class="hostgroup-title">{{ groupName || '未分组' }}</h2>
-        
-        <div class="grid-layout">
-            <!-- 4列布局 -->
-            <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
-                <!-- 当前列显示的链接 -->
-                <div v-for="link in getLinksForColumn(groupData, colIndex-1)" :key="link.link_id" class="card-container">
-                    <div class="card-host-label" v-if="link.showHostName">
-                        {{ link.host_name }} 
-                        <span class="host-ip" v-if="link.host_ip">({{ link.host_ip }})</span>
-                    </div>
-                    <div class="card" 
-                         :style="link.customStyle && link.customStyle.contentStyle ? 
-                            {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}">
-                        <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
-                            <div class="card-title">
-                                <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
-                                <span v-else class="number">{{ link.displayIndex }}</span>
-                                <h3>{{ link.page_name }}</h3>
+    <div class="grid-layout">
+        <!-- 固定4列布局 -->
+        <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
+            <!-- 该列应该显示的hostGroup组 -->
+            <div v-for="(groupData, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
+                <h2 class="hostgroup-title">{{ groupName || '未分组' }}</h2>
+                
+                <!-- 该hostGroup中的所有host -->
+                <div v-for="(host, hostIndex) in groupData" :key="'host-'+host.groupKey" class="host-group">
+                    <h3 class="host-title" v-if="host.links.length > 0">
+                        {{ host.links[0].host_name }} 
+                        <span class="host-ip" v-if="host.links[0].host_ip">({{ host.links[0].host_ip }})</span>
+                    </h3>
+                    <div class="cards-column">
+                        <div v-for="(link, index) in host.links" :key="link.link_id" class="card-container">
+                            <div class="card" 
+                                 :style="link.customStyle && link.customStyle.contentStyle ? 
+                                    {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}">
+                                <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
+                                    <div class="card-title">
+                                        <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
+                                        <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
+                                        <h3>{{ link.page_name }}</h3>
+                                    </div>
+                                    <p>{{ link.page_info }}</p>
+                                </div>
+                                <div class="card-actions">
+                                    <a v-if="link.host_ip" :href="buildLanUrl(link)" class="lan-link" target="_blank">内网链接</a>
+                                    <a v-if="link.outerhost" :href="buildOuterUrl(link)" class="outer-link" target="_blank">外网链接</a>
+                                </div>
                             </div>
-                            <p>{{ link.page_info }}</p>
-                        </div>
-                        <div class="card-actions">
-                            <a v-if="link.host_ip" :href="buildLanUrl(link)" class="lan-link" target="_blank">内网链接</a>
-                            <a v-if="link.outerhost" :href="buildOuterUrl(link)" class="outer-link" target="_blank">外网链接</a>
                         </div>
                     </div>
                 </div>
@@ -44,19 +48,6 @@
     padding: 20px;
 }
 
-.hostgroup-container {
-    margin-bottom: 40px;
-}
-
-.hostgroup-title {
-    margin: 20px 0;
-    padding-bottom: 8px;
-    border-bottom: 3px solid #333;
-    color: #222;
-    font-size: 24px;
-    text-align: center;
-}
-
 .grid-layout {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -66,26 +57,48 @@
 .grid-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 40px;
 }
 
-.card-container {
-    perspective: 1000px;
+.hostgroup-container {
+    margin-bottom: 30px;
 }
 
-.card-host-label {
-    margin-bottom: 8px;
+.hostgroup-title {
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #333;
+    color: #222;
+    font-size: 22px;
+    text-align: center;
+}
+
+.host-group {
+    margin-bottom: 20px;
+}
+
+.host-title {
+    margin: 15px 0 10px 0;
     padding-bottom: 5px;
     border-bottom: 2px solid #eee;
     color: #333;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
 }
 
 .host-ip {
     color: #777;
     font-weight: normal;
-    font-size: 14px;
+    font-size: 16px;
+}
+
+.cards-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card-container {
+    perspective: 1000px;
 }
 
 .card {
