@@ -336,11 +336,11 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
 }
 
 .network-static.is-lan {
     background-color: #7986CB;
-    border-left: 3px solid #3F51B5;
     padding-left: 8px;
     padding-right: 8px;
     justify-content: flex-end;
@@ -348,7 +348,6 @@
 
 .network-static.is-outer {
     background-color: #81C784;
-    border-left: 3px solid #388E3C;
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -389,9 +388,12 @@
 }
 
 .static-lock {
-    margin-right: 8px;
+    margin-right: 6px;
     font-size: 10px;
     opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .network-static:hover .static-lock {
