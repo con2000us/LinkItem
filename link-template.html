@@ -23,7 +23,7 @@
                                         <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
                                         <h3>
                                             {{ link.page_name }}
-                                            <span v-if="link.outerport && link.outerport != 80" class="outer-port">:{{ link.outerport }}</span>
+                                            <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
                                         </h3>
                                     </div>
                                     <div class="card-info">
