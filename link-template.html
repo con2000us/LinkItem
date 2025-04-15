@@ -25,6 +25,9 @@
                                             {{ link.page_name }}
                                             <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
                                         </h3>
+                                        <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
+                                            {{ link.useOuterLink ? link.outerhost : link.host_ip }}
+                                        </span>
                                     </div>
                                     <div class="card-info">
                                         <p class="info-text">{{ link.page_info }}</p>
@@ -35,7 +38,7 @@
                                                  :class="{ 'is-lan': !link.useOuterLink }"
                                                  @click.stop="link.useOuterLink = !link.useOuterLink">
                                                 <div class="toggle-slider">
-                                                    <div class="toggle-text">{{ link.useOuterLink ? 'OFF' : 'ON' }}</div>
+                                                    <div class="toggle-text">{{ link.useOuterLink ? '外网' : '内网' }}</div>
                                                 </div>
                                             </div>
                                             
