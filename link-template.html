@@ -258,11 +258,17 @@
     background-color: #4CAF50;
     border-radius: 13px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     padding: 0 10px 0 30px;
     box-sizing: border-box;
     color: white;
     font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 2px rgba(0,0,0,0.1);
+}
+
+.network-toggle:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
 }
 
 .network-toggle.is-lan {
@@ -284,6 +290,7 @@
     justify-content: center;
     transition: left 0.3s;
     z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .is-lan .toggle-slider {
@@ -324,6 +331,12 @@
     border-radius: 13px;
     color: white;
     font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 2px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.network-static:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .network-static.is-lan {
@@ -343,6 +356,7 @@
     background-color: white;
     border-radius: 50%;
     margin-right: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .static-icon i {
