@@ -172,6 +172,17 @@ $linksData = fetchLinks();
                         if (link.lanport === '0') {
                             // 内网端口为0，只能使用外网
                             link.useOuterLink = true;
+                            
+                            // 如果是纯外部链接且没有自定义样式，添加默认外部链接样式
+                            if (!link.cellCSS || link.cellCSS.trim() === '') {
+                                link.customStyle = {
+                                    contentStyle: {
+                                        backgroundColor: "#3498db",
+                                        "--card-bg": "#3498db"
+                                    },
+                                    icon: "fas fa-globe"
+                                };
+                            }
                         } else if (link.outerport === '0') {
                             // 外网端口为0，只能使用内网
                             link.useOuterLink = false;
