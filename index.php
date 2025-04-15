@@ -19,6 +19,10 @@ $linksData = fetchLinks();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>連結轉運圖</title>
+    <!-- Favicon設定 -->
+    <link rel="icon" href="favicon.php" type="image/svg+xml">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicon.php">
     <!-- 加载 Vue.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
     <!-- 添加 Font Awesome 图标库 -->
