@@ -170,10 +170,10 @@ $linksData = fetchLinks();
                     this.links = rawLinks.map(link => {
                         // 添加默认内外网切换标记（根据端口情况决定）
                         if (link.lanport === '0') {
-                            // 内网端口为0，锁定为外网
+                            // 内网端口为0，只能使用外网
                             link.useOuterLink = true;
                         } else if (link.outerport === '0') {
-                            // 外网端口为0，锁定为内网
+                            // 外网端口为0，只能使用内网
                             link.useOuterLink = false;
                         } else {
                             // 两者都可用，默认使用内网
