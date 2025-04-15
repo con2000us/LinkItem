@@ -168,8 +168,17 @@ $linksData = fetchLinks();
                     
                     // 处理每个链接项的 cellCSS
                     this.links = rawLinks.map(link => {
-                        // 添加默认内外网切换标记（默认使用内网）
-                        link.useOuterLink = false;
+                        // 添加默认内外网切换标记（根据端口情况决定）
+                        if (link.lanport === '0') {
+                            // 内网端口为0，锁定为外网
+                            link.useOuterLink = true;
+                        } else if (link.outerport === '0') {
+                            // 外网端口为0，锁定为内网
+                            link.useOuterLink = false;
+                        } else {
+                            // 两者都可用，默认使用内网
+                            link.useOuterLink = false;
+                        }
                         
                         // 尝试解析 cellCSS JSON
                         if (link.cellCSS && link.cellCSS.trim() !== '') {
@@ -357,6 +366,12 @@ $linksData = fetchLinks();
                 toggleNetwork(event, link) {
                     // 阻止事件冒泡，避免触发卡片的点击事件
                     event.stopPropagation();
+                    
+                    // 检查端口是否为0（不可用）
+                    if (link.lanport === '0' || link.outerport === '0') {
+                        return; // 如果任一端口不可用，则不进行切换
+                    }
+                    
                     // 切换网络状态
                     link.useOuterLink = !link.useOuterLink;
                 }

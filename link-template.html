@@ -28,7 +28,12 @@
                                     <div class="item-content">
                                         <div class="links-wrap">
                                             <div class="toggle-wrap">
-                                                <div class="network-toggle" :class="{'is-lan': !link.useOuterLink}" @click="toggleNetwork($event, link)">
+                                                <div class="network-toggle" 
+                                                     :class="{
+                                                         'is-lan': !link.useOuterLink, 
+                                                         'toggle-disabled': (link.lanport === '0' || link.outerport === '0')
+                                                     }" 
+                                                     @click="(link.lanport !== '0' && link.outerport !== '0') ? toggleNetwork($event, link) : null">
                                                     <div class="toggle-slider">
                                                         <i :class="['fas', !link.useOuterLink ? 'fa-home' : 'fa-globe']"></i>
                                                     </div>
@@ -282,6 +287,17 @@
     max-width: 150px;
     font-size: 12px;
     font-weight: 500;
+}
+
+/* 禁用状态 */
+.network-toggle.toggle-disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.network-toggle.toggle-disabled .toggle-slider {
+    opacity: 0.6;
 }
 
 /* 响应式设计 */
