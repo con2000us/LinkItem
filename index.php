@@ -7,123 +7,98 @@ $linksData = fetchLinks();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Manager</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <title>連結轉運圖</title>
+    <!-- 加载 Vue.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- 添加 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
+            background-color: #f5f7fa;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Link Manager</h1>
-        <div id="app">
-            <div v-if="links.length === 0">Loading...</div>
-            <div v-else v-for="(group, host) in groupedLinks" :key="host">
-                <div v-if="group.length > 0">
-                    <?php include 'link-template.html'; ?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- 链接模板将在这里渲染 -->
+    <?php include 'link-template.html'; ?>
 
     <script>
-    new Vue({
-        el: '#app',
-        data: {
-            links: []
-        },
-        created() {
-            // Fetch links data when Vue instance is created
-            fetch('fetch_links.php')
-                .then(response => response.json())
-                .then(data => {
-                    this.links = data;
-                    console.log('Data loaded:', this.links); // Debug output
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    // Display raw response if there's an error
-                    fetch('fetch_links.php')
-                        .then(response => response.text())
-                        .then(text => {
-                            console.log('Raw response:', text);
-                        });
-                });
-        },
-        computed: {
-            groupedLinks() {
-                // Group links by host
-                const groups = {};
-                
-                this.links.forEach(link => {
-                    // 確定主機名稱 - 優先使用 host_name，然後是 host_ip，最後是 lanhost
-                    const hostName = link.host_name || link.host_ip || link.lanhost || 'Unknown';
-                    
-                    // 確定主機 IP - 優先使用 host_ip，然後是 lanhost
-                    link.effectiveHostIp = link.host_ip || link.lanhost;
-                    
-                    if (!groups[hostName]) {
-                        groups[hostName] = [];
-                    }
-                    groups[hostName].push(link);
-                });
-                
-                return groups;
-            }
-        },
-        methods: {
-            buildLanUrl(link) {
-                // 構建內部 URL
-                if (!link.effectiveHostIp) return '#';
-                
-                let host = link.effectiveHostIp;
-                let port = link.lanport ? `:${link.lanport}` : '';
-                let path = link.lanpath || '';
-                
-                // 確保路徑開始有斜杠
-                if (path && !path.startsWith('/')) {
-                    path = '/' + path;
-                }
-                
-                return `http://${host}${port}${path}`;
+        // 初始化 Vue 应用
+        new Vue({
+            el: '#link-cards',
+            data: {
+                links: []
             },
-            buildOuterUrl(link) {
-                // 構建外部 URL
-                if (!link.outerhost) return '#';
-                
-                let host = link.outerhost;
-                let port = link.outerport ? `:${link.outerport}` : '';
-                let path = link.outerpath || '';
-                
-                // 確保路徑開始有斜杠
-                if (path && !path.startsWith('/')) {
-                    path = '/' + path;
+            computed: {
+                // 按照 lanhost 分组链接
+                groupedLinks() {
+                    const groups = {};
+                    const sortedLinks = [...this.links];
+                    
+                    // 按 lanhost 分组
+                    sortedLinks.forEach(link => {
+                        const host = link.lanhost || 'other';
+                        if (!groups[host]) {
+                            groups[host] = [];
+                        }
+                        groups[host].push(link);
+                    });
+                    
+                    // 转换为数组格式返回
+                    return Object.values(groups);
                 }
+            },
+            created() {
+                // 解析从 PHP 获取的数据
+                let rawLinks = <?php echo $linksData; ?>;
                 
-                return `http://${host}${port}${path}`;
+                // 处理每个链接项的 cellCSS
+                this.links = rawLinks.map(link => {
+                    // 尝试解析 cellCSS JSON
+                    if (link.cellCSS && link.cellCSS.trim() !== '') {
+                        try {
+                            const cssData = JSON.parse(link.cellCSS);
+                            link.customStyle = cssData;
+                        } catch (e) {
+                            console.error('解析 cellCSS 时出错:', e);
+                            link.customStyle = null;
+                        }
+                    }
+                    return link;
+                });
+            },
+            methods: {
+                // 构建内网链接
+                buildLanUrl(link) {
+                    let url = 'http://' + link.lanhost;
+                    if (link.lanport && link.lanport != 80) {
+                        url += ':' + link.lanport;
+                    }
+                    if (link.lanDir) {
+                        url += '/' + link.lanDir;
+                    }
+                    return url;
+                },
+                
+                // 构建外网链接
+                buildOuterUrl(link) {
+                    let url = 'http://' + link.outerhost;
+                    if (link.outerport && link.outerport != 80) {
+                        url += ':' + link.outerport;
+                    }
+                    if (link.outerDir) {
+                        url += '/' + link.outerDir;
+                    }
+                    return url;
+                }
             }
-        }
-    });
+        });
     </script>
 </body>
 </html>
