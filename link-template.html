@@ -8,12 +8,12 @@
                 <div class="card" 
                      :style="link.customStyle && link.customStyle.contentStyle ? 
                         {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}">
-                    <div class="card-icon" :style="link.customStyle && link.customStyle.numberStyle">
-                        <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
-                        <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
-                    </div>
                     <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
-                        <h3>{{ link.page_name }}</h3>
+                        <div class="card-title">
+                            <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
+                            <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
+                            <h3>{{ link.page_name }}</h3>
+                        </div>
                         <p>{{ link.page_info }}</p>
                     </div>
                     <div class="card-actions">
@@ -75,22 +75,6 @@
     box-shadow: 0 12px 20px rgba(0,0,0,0.15);
 }
 
-.card-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 80px;
-    background-color: #fff;
-    color: var(--card-bg);
-    font-size: 28px;
-    transition: all 0.3s ease;
-}
-
-.card:hover .card-icon i {
-    transform: scale(1.15);
-    animation: pulse 1.5s infinite alternate;
-}
-
 .card-header {
     background-color: var(--card-bg);
     color: white;
@@ -98,8 +82,31 @@
     flex: 1;
 }
 
-.card-header h3 {
-    margin: 0 0 10px 0;
+.card-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-title i {
+    font-size: 24px;
+    margin-right: 12px;
+    transition: transform 0.3s ease;
+}
+
+.card-title .number {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.card:hover .card-title i {
+    transform: scale(1.15);
+    animation: pulse 1.5s infinite alternate;
+}
+
+.card-title h3 {
+    margin: 0;
     font-size: 20px;
     font-weight: 600;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
