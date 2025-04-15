@@ -16,7 +16,8 @@
                         <div v-for="(link, index) in host.links" :key="link.link_id" class="card-container">
                             <div class="card" 
                                  :style="link.customStyle && link.customStyle.contentStyle ? 
-                                    {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}">
+                                    {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}"
+                                 @click="openLink(link)">
                                 <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
                                     <div class="card-title">
                                         <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
@@ -25,14 +26,13 @@
                                             {{ link.page_name }}
                                             <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
                                         </h3>
-                                        <!-- 点击网址文字直接打开链接 -->
-                                        <a :href="getActiveUrl(link)" class="link-content" :class="{ 'is-lan': !link.useOuterLink }" target="_blank">
+                                        <!-- 只显示链接文字，不包含图标 -->
+                                        <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
                                             {{ link.useOuterLink ? 
                                                (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.outerDir ? '/' + link.outerDir : '')) : 
                                                (link.host_ip + (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + (link.lanDir ? '/' + link.lanDir : '')) 
                                             }}
-                                            <i class="fas fa-link"></i>
-                                        </a>
+                                        </span>
                                     </div>
                                     <div class="card-info">
                                         <p class="info-text">{{ link.page_info }}</p>
@@ -130,11 +130,29 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+}
+
+.card:hover::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.12);
 }
 
 .card-header {
@@ -193,21 +211,9 @@
     opacity: 0.9;
     margin-left: auto;
     text-align: right;
-    text-decoration: none;
     color: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: all 0.2s ease;
-}
-
-.link-content:hover {
-    text-decoration: underline;
-    opacity: 1;
-}
-
-.link-content i {
-    font-size: 12px;
 }
 
 .link-content.is-lan {

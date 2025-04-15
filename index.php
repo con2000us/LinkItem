@@ -281,6 +281,14 @@ $linksData = fetchLinks();
                     return '#';
                 },
                 
+                // 打开链接
+                openLink(link) {
+                    const url = this.getActiveUrl(link);
+                    if (url !== '#') {
+                        window.open(url, '_blank');
+                    }
+                },
+                
                 // 构建内网链接
                 buildLanUrl(link) {
                     if (!link.host_ip) return '#';
