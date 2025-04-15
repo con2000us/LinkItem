@@ -21,7 +21,14 @@ function fetchLinks() {
     $sql = "SELECT l.*, h.host_name, h.host_ip
             FROM links l
             LEFT JOIN hosts h ON l.lanhost = h.host_id
-            ORDER BY l.hostGroup ASC, l.linkOrder ASC";
+            ORDER BY 
+                CASE 
+                    WHEN h.host_name = 'iStoreOS' THEN 0
+                    WHEN h.host_name = 'Unraid' THEN 1
+                    ELSE 2 
+                END,
+                l.hostGroup ASC, 
+                l.linkOrder ASC";
     $result = $conn->query($sql);
 
     // Check if there are results

@@ -136,7 +136,7 @@ $linksData = fetchLinks();
                 links: []
             },
             computed: {
-                // 首先按照 hostGroup 分组，然后在每个组内按照 lanhost (host_id) 分组链接
+                // 首先按照 hostGroup 分组，然后按照 linkOrder 排序链接
                 hostGroupedLinks() {
                     const groupsByHostGroup = {};
                     
@@ -144,21 +144,35 @@ $linksData = fetchLinks();
                     this.links.forEach(link => {
                         const hostGroup = link.hostGroup || '未分组';
                         if (!groupsByHostGroup[hostGroup]) {
-                            groupsByHostGroup[hostGroup] = {};
+                            groupsByHostGroup[hostGroup] = [];
                         }
                         
-                        // 然后在每个 hostGroup 内按 lanhost 再次分组
-                        const hostId = link.lanhost || 'other';
-                        if (!groupsByHostGroup[hostGroup][hostId]) {
-                            groupsByHostGroup[hostGroup][hostId] = [];
-                        }
-                        groupsByHostGroup[hostGroup][hostId].push(link);
+                        // 直接添加到对应的 hostGroup 组中
+                        groupsByHostGroup[hostGroup].push(link);
                     });
                     
-                    // 转换格式为更易于遍历的格式
+                    // 在每个 hostGroup 内按 linkOrder 排序
+                    for (const groupName in groupsByHostGroup) {
+                        groupsByHostGroup[groupName].sort((a, b) => {
+                            return (a.linkOrder || 999) - (b.linkOrder || 999);
+                        });
+                    }
+                    
+                    // 将排序后的链接按照 host_id 分组
                     const result = {};
-                    for (const [groupName, hosts] of Object.entries(groupsByHostGroup)) {
-                        result[groupName] = Object.entries(hosts).map(([hostId, links]) => ({
+                    for (const [groupName, links] of Object.entries(groupsByHostGroup)) {
+                        // 按 host_id 分组
+                        const hostGroups = {};
+                        links.forEach(link => {
+                            const hostId = link.lanhost || 'other';
+                            if (!hostGroups[hostId]) {
+                                hostGroups[hostId] = [];
+                            }
+                            hostGroups[hostId].push(link);
+                        });
+                        
+                        // 转换格式
+                        result[groupName] = Object.entries(hostGroups).map(([hostId, links]) => ({
                             groupKey: hostId,
                             links: links
                         }));
