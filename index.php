@@ -72,6 +72,30 @@ $linksData = fetchLinks();
             font-size: 12px;
             color: rgba(255, 255, 255, 0.8);
             z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-tool {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #5a55aa;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .user-tool:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -83,6 +107,9 @@ $linksData = fetchLinks();
     <?php if (isset($_SESSION['username'])): ?>
     <div class="user-welcome">
         您好，<?php echo htmlspecialchars($_SESSION['username']); ?>
+        <a href="generate_hash.php" class="user-tool" title="密碼雜湊工具">
+            <i class="fas fa-key"></i>
+        </a>
     </div>
     <?php endif; ?>
 
