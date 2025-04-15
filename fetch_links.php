@@ -18,7 +18,7 @@ function fetchLinks() {
     }
 
     // SQL query with JOIN to get host information along with links
-    $sql = "SELECT l.*, h.name as host_name, h.host_ip, h.hostGroup 
+    $sql = "SELECT l.*, h.host_name, h.host_ip, h.hostGroup 
             FROM links l
             LEFT JOIN hosts h ON l.lanhost = h.host_id
             ORDER BY h.hostGroup ASC, l.linkOrder ASC";
@@ -57,7 +57,7 @@ function fetchHosts() {
     }
 
     // SQL query to select all hosts
-    $sql = "SELECT * FROM hosts ORDER BY hostGroup ASC, name ASC";
+    $sql = "SELECT * FROM hosts ORDER BY hostGroup ASC, host_name ASC";
     $result = $conn->query($sql);
 
     // Check if there are results
