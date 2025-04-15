@@ -178,6 +178,18 @@ $linksData = fetchLinks();
                             try {
                                 const cssData = JSON.parse(link.cellCSS);
                                 link.customStyle = cssData;
+                                
+                                // 如果有backgroundColor，计算其RGB值用于阴影
+                                if (cssData.contentStyle && cssData.contentStyle.backgroundColor) {
+                                    // 提取十六进制颜色值
+                                    const color = cssData.contentStyle.backgroundColor;
+                                    // 将十六进制转换为RGB
+                                    const rgb = this.hexToRgb(color);
+                                    if (rgb) {
+                                        // 添加到自定义样式中
+                                        cssData.contentStyle['--card-bg-rgb'] = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+                                    }
+                                }
                             } catch (e) {
                                 console.error('解析 cellCSS 时出错:', e);
                                 this.showError('解析 cellCSS 时出错: ' + e.message);
@@ -192,6 +204,25 @@ $linksData = fetchLinks();
                 }
             },
             methods: {
+                // 将十六进制颜色转换为RGB
+                hexToRgb(hex) {
+                    // 去掉#号
+                    hex = hex.replace(/^#/, '');
+                    
+                    // 处理简写形式 (#rgb)
+                    if (hex.length === 3) {
+                        hex = hex.split('').map(char => char + char).join('');
+                    }
+                    
+                    // 转换为RGB
+                    const bigint = parseInt(hex, 16);
+                    return {
+                        r: (bigint >> 16) & 255,
+                        g: (bigint >> 8) & 255,
+                        b: bigint & 255
+                    };
+                },
+                
                 // 获取某一列应该显示的链接
                 getLinksForColumn(hostGroups, columnIndex) {
                     if (!hostGroups || !Array.isArray(hostGroups)) return [];
