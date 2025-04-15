@@ -4,20 +4,19 @@
     <div v-for="(group, groupIndex) in groupedLinks" :key="'group-'+groupIndex" class="host-group">
         <h3 class="host-title" v-if="group.length > 0">{{ group[0].lanhost }}</h3>
         <div class="arrow-cards-grid">
-            <div v-for="(link, index) in group" :key="link.link_id" class="arrow-card" 
-                 :class="[
-                    'card-' + (index % 4 + 1), 
-                    link.customStyle && link.customStyle.cardClass
-                 ]"
-                 :style="link.customStyle && link.customStyle.cardStyle">
-                <div class="card-number" :style="link.customStyle && link.customStyle.numberStyle">
-                    <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
-                    <span v-else>{{ String(index + 1).padStart(2, '0') }}</span>
-                </div>
-                <div class="card-content" :style="link.customStyle && link.customStyle.contentStyle">
-                    <h3>{{ link.page_name }}</h3>
-                    <p>{{ link.page_info }}</p>
-                    <div class="card-links">
+            <div v-for="(link, index) in group" :key="link.link_id" class="card-container">
+                <div class="card" 
+                     :style="link.customStyle && link.customStyle.contentStyle ? 
+                        {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}">
+                    <div class="card-icon" :style="link.customStyle && link.customStyle.numberStyle">
+                        <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
+                        <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
+                    </div>
+                    <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
+                        <h3>{{ link.page_name }}</h3>
+                        <p>{{ link.page_info }}</p>
+                    </div>
+                    <div class="card-actions">
                         <a v-if="link.lanhost" :href="buildLanUrl(link)" class="lan-link" target="_blank">内网链接</a>
                         <a v-if="link.outerhost" :href="buildOuterUrl(link)" class="outer-link" target="_blank">外网链接</a>
                     </div>
@@ -33,7 +32,6 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    perspective: 1000px; /* 添加3D视角效果 */
 }
 
 .host-group {
@@ -54,126 +52,88 @@
     gap: 20px;
 }
 
-.arrow-card {
+.card-container {
+    perspective: 1000px;
+}
+
+.card {
+    --card-bg: #5a55aa;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    height: 100%;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1);
-    position: relative;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d;
-    transform-origin: center bottom;
-    will-change: transform, box-shadow;
-    cursor: pointer;
-    backface-visibility: hidden;
-    height: 100%;
 }
 
-.arrow-card:hover {
-    transform: translateY(-5px) scale(1.02) rotateX(2deg);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.25), 0 10px 15px rgba(0,0,0,0.15);
-    z-index: 10;
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.15);
 }
 
-.arrow-card:hover::before {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 10%;
-    right: 10%;
-    height: 10px;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 80%);
-    filter: blur(5px);
-    z-index: -1;
-}
-
-.card-number {
+.card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 50px;
-    font-weight: bold;
-    font-size: 24px;
-    background-color: #f5f5f5;
-    color: var(--number-color);
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: all 0.4s ease;
+    height: 80px;
+    background-color: #fff;
+    color: var(--card-bg);
+    font-size: 28px;
+    transition: all 0.3s ease;
 }
 
-.arrow-card:hover .card-number i,
-.arrow-card:hover .card-number span {
-    transform: scale(1.2);
+.card:hover .card-icon i {
+    transform: scale(1.15);
     animation: pulse 1.5s infinite alternate;
 }
 
-.card-number i {
-    font-size: 24px;
-    transition: transform 0.3s ease;
-}
-
-.card-content {
-    flex: 1;
-    padding: 15px;
+.card-header {
+    background-color: var(--card-bg);
     color: white;
-    position: relative;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    padding: 20px;
+    flex: 1;
 }
 
-.card-content h3 {
+.card-header h3 {
     margin: 0 0 10px 0;
-    font-size: 18px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
+    font-size: 20px;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-.arrow-card:hover .card-content h3 {
-    transform: translateY(3px);
-}
-
-.card-content p {
+.card-header p {
     margin: 0;
     font-size: 14px;
     opacity: 0.9;
-    transition: opacity 0.3s ease;
-    flex: 1;
 }
 
-.arrow-card:hover .card-content p {
-    opacity: 1;
-}
-
-.card-links {
-    margin-top: 15px;
-    transition: transform 0.5s ease;
+.card-actions {
     display: flex;
-    justify-content: space-around;
+    padding: 15px;
+    background-color: #fff;
+    border-top: 1px solid rgba(0,0,0,0.05);
 }
 
-.card-links a {
-    display: inline-block;
-    padding: 5px 10px;
-    background-color: rgba(255,255,255,0.2);
-    border-radius: 3px;
+.card-actions a {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    margin: 0 5px;
+    background-color: var(--card-bg);
     color: white;
     text-decoration: none;
+    border-radius: 4px;
     font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    text-align: center;
-    flex: 1;
-    margin: 0 5px;
 }
 
-.card-links a::before {
+.card-actions a::before {
     content: '';
     position: absolute;
     top: 0;
@@ -184,51 +144,13 @@
     transition: left 0.7s ease;
 }
 
-.card-links a:hover {
-    background-color: rgba(255,255,255,0.3);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transform: translateY(-3px) scale(1.05);
+.card-actions a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.card-links a:hover::before {
+.card-actions a:hover::before {
     left: 100%;
-}
-
-/* 卡片颜色 */
-.card-1 {
-    --card-bg: #FF4757;
-    --number-color: #FF4757;
-}
-
-.card-1 .card-content {
-    background-color: #FF4757;
-}
-
-.card-2 {
-    --card-bg: #1DD1A1;
-    --number-color: #1DD1A1;
-}
-
-.card-2 .card-content {
-    background-color: #1DD1A1;
-}
-
-.card-3 {
-    --card-bg: #2E3A59;
-    --number-color: #2E3A59;
-}
-
-.card-3 .card-content {
-    background-color: #2E3A59;
-}
-
-.card-4 {
-    --card-bg: #FF8A3D;
-    --number-color: #FF8A3D;
-}
-
-.card-4 .card-content {
-    background-color: #FF8A3D;
 }
 
 /* 动画效果 */
@@ -237,7 +159,7 @@
         transform: scale(1.1);
     }
     100% {
-        transform: scale(1.25);
+        transform: scale(1.2);
     }
 }
 
