@@ -2,8 +2,8 @@
     <h1>連結轉運圖</h1>
     
     <div class="grid-layout">
-        <!-- 固定3列布局 -->
-        <div v-for="colIndex in 3" :key="'col-'+colIndex" class="grid-column">
+        <!-- 固定4列布局 -->
+        <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
             <!-- 该列应该显示的hostGroup组 -->
             <div v-for="(groupData, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
                 <!-- 该hostGroup中的所有host -->
@@ -75,7 +75,7 @@
 
 .grid-layout {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 }
 
@@ -272,7 +272,13 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
+    .grid-layout {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1000px) {
     .grid-layout {
         grid-template-columns: repeat(2, 1fr);
     }

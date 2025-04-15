@@ -239,7 +239,7 @@ $linksData = fetchLinks();
                     const totalGroups = allGroups.length;
                     
                     // 如果组数小于或等于列数，则平均分配
-                    if (totalGroups <= 3) { // 改为3列
+                    if (totalGroups <= 4) { // 改为4列
                         // 如果当前列索引小于总组数，则返回对应的组
                         if (columnIndex < totalGroups) {
                             const group = allGroups[columnIndex];
@@ -251,7 +251,7 @@ $linksData = fetchLinks();
                     }
                     
                     // 如果组数大于列数，则计算每列应该显示多少组
-                    const groupsPerColumn = Math.ceil(totalGroups / 3); // 改为3列
+                    const groupsPerColumn = Math.ceil(totalGroups / 4); // 改为4列
                     const startIdx = columnIndex * groupsPerColumn;
                     const endIdx = Math.min(startIdx + groupsPerColumn, totalGroups);
                     
