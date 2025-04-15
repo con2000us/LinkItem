@@ -18,7 +18,7 @@ $linksData = fetchLinks();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>連結轉運圖</title>
+    <title>轉運圖</title>
     <!-- Favicon設定 -->
     <link rel="icon" href="favicon.php" type="image/svg+xml">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
