@@ -27,7 +27,10 @@
                                         </h3>
                                         <!-- 点击网址文字直接打开链接 -->
                                         <a :href="getActiveUrl(link)" class="link-content" :class="{ 'is-lan': !link.useOuterLink }" target="_blank">
-                                            {{ link.useOuterLink ? link.outerhost : link.host_ip }}
+                                            {{ link.useOuterLink ? 
+                                               (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.dir ? '/' + link.dir : '')) : 
+                                               (link.host_ip + (link.host_port && link.host_port != 80 ? ':' + link.host_port : '') + (link.dir ? '/' + link.dir : '')) 
+                                            }}
                                             <i class="fas fa-link"></i>
                                         </a>
                                     </div>
@@ -40,8 +43,8 @@
                                                  :class="{ 'is-lan': !link.useOuterLink }"
                                                  @click.stop="link.useOuterLink = !link.useOuterLink">
                                                 <div class="toggle-slider"></div>
-                                                <div class="toggle-text-left" v-if="link.useOuterLink">外网</div>
-                                                <div class="toggle-text-right" v-else>内网</div>
+                                                <div class="toggle-text-left" v-if="link.useOuterLink">外網</div>
+                                                <div class="toggle-text-right" v-else>內網</div>
                                             </div>
                                         </div>
                                     </div>
@@ -100,11 +103,12 @@
 .cards-column {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .card-container {
     perspective: 1000px;
+    margin-top: 5px;
 }
 
 .card {
@@ -234,7 +238,8 @@
     font-size: 12px;
     font-weight: bold;
     left: 6px;
-    line-height: 26px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 1;
 }
 
@@ -244,7 +249,8 @@
     font-size: 12px;
     font-weight: bold;
     right: 6px;
-    line-height: 26px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 1;
 }
 
