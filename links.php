@@ -1,4 +1,7 @@
 <?php
+// 引入身份驗證檢查
+include 'auth_check.php';
+
 include 'fetch_links.php';
 
 // 获取所有链接和主机

@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "受限制區域"
+AuthUserFile /完整路徑/.htpasswd
+Require valid-user 

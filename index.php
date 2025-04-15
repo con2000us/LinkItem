@@ -1,4 +1,7 @@
 <?php
+// 引入身份驗證檢查
+include 'auth_check.php';
+
 // 启用错误报告
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -34,17 +37,65 @@ $linksData = fetchLinks();
             border: 1px solid #f5c6cb;
             border-radius: 4px;
         }
+        /* 登出按鈕樣式 */
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .logout-btn i {
+            font-size: 16px;
+        }
+
+        .user-welcome {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
     </style>
 </head>
 <body>
-    <!-- 错误信息显示区域 -->
-    <div class="error-container" id="error-container" style="display: none;">
-        <h3>发生错误</h3>
-        <p id="error-message"></p>
+    <!-- 添加登出按鈕 -->
+    <a href="logout.php" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> 登出
+    </a>
+    
+    <?php if (isset($_SESSION['username'])): ?>
+    <div class="user-welcome">
+        您好，<?php echo htmlspecialchars($_SESSION['username']); ?>
     </div>
+    <?php endif; ?>
 
-    <!-- 链接模板将在这里渲染 -->
-    <?php include 'link-template.html'; ?>
+    <div id="app">
+        <!-- 错误信息显示区域 -->
+        <div id="error-container" style="display: none;">
+            <h3>发生错误</h3>
+            <p id="error-message"></p>
+        </div>
+
+        <!-- 链接模板将在这里渲染 -->
+        <?php include 'link-template.html'; ?>
+    </div>
 
     <script>
         // 初始化 Vue 应用
