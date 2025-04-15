@@ -92,6 +92,9 @@ $linksData = fetchLinks();
                     
                     // 处理每个链接项的 cellCSS
                     this.links = rawLinks.map(link => {
+                        // 添加默认内外网切换标记（默认使用内网）
+                        link.useOuterLink = false;
+                        
                         // 尝试解析 cellCSS JSON
                         if (link.cellCSS && link.cellCSS.trim() !== '') {
                             try {
@@ -158,7 +161,7 @@ $linksData = fetchLinks();
                     const totalGroups = allGroups.length;
                     
                     // 如果组数小于或等于列数，则平均分配
-                    if (totalGroups <= 4) {
+                    if (totalGroups <= 3) { // 改为3列
                         // 如果当前列索引小于总组数，则返回对应的组
                         if (columnIndex < totalGroups) {
                             const group = allGroups[columnIndex];
@@ -170,7 +173,7 @@ $linksData = fetchLinks();
                     }
                     
                     // 如果组数大于列数，则计算每列应该显示多少组
-                    const groupsPerColumn = Math.ceil(totalGroups / 4);
+                    const groupsPerColumn = Math.ceil(totalGroups / 3); // 改为3列
                     const startIdx = columnIndex * groupsPerColumn;
                     const endIdx = Math.min(startIdx + groupsPerColumn, totalGroups);
                     
@@ -186,16 +189,18 @@ $linksData = fetchLinks();
                     return result;
                 },
                 
-                // 为每列获取主机组 (不再使用)
-                getHostsForColumn(hosts, columnIndex) {
-                    if (!hosts || !Array.isArray(hosts)) return [];
-                    
-                    // 每列最多显示5个host
-                    const hostsPerColumn = 5;
-                    const startIndex = columnIndex * hostsPerColumn;
-                    const endIndex = startIndex + hostsPerColumn;
-                    
-                    return hosts.slice(startIndex, endIndex);
+                // 获取链接的当前激活URL（内网或外网）
+                getActiveUrl(link) {
+                    // 默认使用内网链接，除非useOuterLink为true且存在外网链接
+                    if (link.useOuterLink && link.outerhost) {
+                        return this.buildOuterUrl(link);
+                    } else if (link.host_ip) {
+                        return this.buildLanUrl(link);
+                    } else if (link.outerhost) {
+                        // 如果只有外网链接则使用外网
+                        return this.buildOuterUrl(link);
+                    }
+                    return '#';
                 },
                 
                 // 构建内网链接

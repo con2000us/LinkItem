@@ -2,8 +2,8 @@
     <h1>連結轉運圖</h1>
     
     <div class="grid-layout">
-        <!-- 固定4列布局 -->
-        <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
+        <!-- 固定3列布局 -->
+        <div v-for="colIndex in 3" :key="'col-'+colIndex" class="grid-column">
             <!-- 该列应该显示的hostGroup组 -->
             <div v-for="(groupData, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
                 <!-- 该hostGroup中的所有host -->
@@ -28,12 +28,22 @@
                                     </div>
                                     <div class="card-info">
                                         <p class="info-text">{{ link.page_info }}</p>
-                                        <a v-if="link.host_ip" :href="buildLanUrl(link)" class="lan-url-btn" target="_blank">
-                                            <i class="fas fa-link"></i>
-                                        </a>
-                                        <a v-if="link.outerhost && !link.host_ip" :href="buildOuterUrl(link)" class="outer-url-btn" target="_blank">
-                                            <i class="fas fa-globe"></i>
-                                        </a>
+                                        <div class="card-actions" v-if="link.host_ip || link.outerhost">
+                                            <!-- 仅当同时有内外网链接时显示切换器 -->
+                                            <div v-if="link.host_ip && link.outerhost" 
+                                                 class="network-toggle" 
+                                                 :class="{ 'is-lan': !link.useOuterLink }"
+                                                 @click.stop="link.useOuterLink = !link.useOuterLink">
+                                                <div class="toggle-slider">
+                                                    <div class="toggle-text">{{ link.useOuterLink ? 'OFF' : 'ON' }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 链接按钮 -->
+                                            <a :href="getActiveUrl(link)" class="url-btn" target="_blank">
+                                                <i class="fas fa-link"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -55,7 +65,7 @@
 
 .grid-layout {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
@@ -150,7 +160,65 @@
     font-weight: normal;
 }
 
-.lan-url-btn, .outer-url-btn {
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 网络切换开关 */
+.network-toggle {
+    width: 60px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #ff6b6b;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.network-toggle.is-lan {
+    background-color: #82ca9d;
+}
+
+.toggle-slider {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: white;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.network-toggle.is-lan .toggle-slider {
+    right: calc(100% - 28px);
+}
+
+.toggle-text {
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+}
+
+.network-toggle.is-lan .toggle-text {
+    right: 2px;
+}
+
+.network-toggle:not(.is-lan) .toggle-text {
+    left: 2px;
+}
+
+/* 链接按钮 */
+.url-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -163,14 +231,10 @@
     transition: all 0.3s ease;
 }
 
-.lan-url-btn:hover, .outer-url-btn:hover {
+.url-btn:hover {
     background-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.outer-url-btn {
-    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .card-title i {
@@ -209,12 +273,6 @@
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
-    .grid-layout {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
     .grid-layout {
         grid-template-columns: repeat(2, 1fr);
     }
