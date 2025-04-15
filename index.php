@@ -11,7 +11,7 @@ $linksData = fetchLinks();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>链接导航</title>
+    <title>連結轉運圖</title>
     <!-- 加载 Vue.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
     <!-- 添加 Font Awesome 图标库 -->
@@ -36,18 +36,18 @@ $linksData = fetchLinks();
                 links: []
             },
             computed: {
-                // 按照 lanhost 分组链接
+                // 按照 host_name 和 host_ip 分组链接
                 groupedLinks() {
                     const groups = {};
                     const sortedLinks = [...this.links];
                     
-                    // 按 lanhost 分组
+                    // 按 host_name/host_ip 分组
                     sortedLinks.forEach(link => {
-                        const host = link.lanhost || 'other';
-                        if (!groups[host]) {
-                            groups[host] = [];
+                        const hostKey = link.host_name || link.host_ip || 'other';
+                        if (!groups[hostKey]) {
+                            groups[hostKey] = [];
                         }
-                        groups[host].push(link);
+                        groups[hostKey].push(link);
                     });
                     
                     // 转换为数组格式返回
@@ -76,7 +76,9 @@ $linksData = fetchLinks();
             methods: {
                 // 构建内网链接
                 buildLanUrl(link) {
-                    let url = 'http://' + link.lanhost;
+                    if (!link.host_ip) return '#';
+                    
+                    let url = 'http://' + link.host_ip;
                     if (link.lanport && link.lanport != 80) {
                         url += ':' + link.lanport;
                     }
@@ -88,6 +90,8 @@ $linksData = fetchLinks();
                 
                 // 构建外网链接
                 buildOuterUrl(link) {
+                    if (!link.outerhost) return '#';
+                    
                     let url = 'http://' + link.outerhost;
                     if (link.outerport && link.outerport != 80) {
                         url += ':' + link.outerport;

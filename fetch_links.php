@@ -17,8 +17,12 @@ function fetchLinks() {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // SQL query to select all data from links table, ordered by linkOrder
-    $sql = "SELECT * FROM links ORDER BY linkOrder ASC";
+    // SQL query to select links data with host information
+    $sql = "SELECT l.*, h.host_name, h.host_ip 
+            FROM links l 
+            LEFT JOIN hosts h ON l.lanhost = h.host_id 
+            ORDER BY l.linkOrder ASC";
+    
     $result = $conn->query($sql);
 
     // Check if there are results
