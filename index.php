@@ -158,27 +158,7 @@ $linksData = fetchLinks();
                         });
                     }
                     
-                    // 将排序后的链接按照 host_id 分组
-                    const result = {};
-                    for (const [groupName, links] of Object.entries(groupsByHostGroup)) {
-                        // 按 host_id 分组
-                        const hostGroups = {};
-                        links.forEach(link => {
-                            const hostId = link.lanhost || 'other';
-                            if (!hostGroups[hostId]) {
-                                hostGroups[hostId] = [];
-                            }
-                            hostGroups[hostId].push(link);
-                        });
-                        
-                        // 转换格式
-                        result[groupName] = Object.entries(hostGroups).map(([hostId, links]) => ({
-                            groupKey: hostId,
-                            links: links
-                        }));
-                    }
-                    
-                    return result;
+                    return groupsByHostGroup;
                 }
             },
             created() {
@@ -277,8 +257,8 @@ $linksData = fetchLinks();
                 // 获取每列显示的hostGroup
                 getHostGroupsForColumn(columnIndex) {
                     // 所有hostGroup分组
-                    const allGroups = Object.entries(this.hostGroupedLinks).map(([groupName, hosts]) => {
-                        return { groupName, hosts };
+                    const allGroups = Object.entries(this.hostGroupedLinks).map(([groupName, links]) => {
+                        return { groupName, links };
                     });
                     
                     // 如果没有分组，返回空数组
@@ -288,19 +268,19 @@ $linksData = fetchLinks();
                     const totalGroups = allGroups.length;
                     
                     // 如果组数小于或等于列数，则平均分配
-                    if (totalGroups <= 4) { // 改为4列
+                    if (totalGroups <= 4) { // 4列布局
                         // 如果当前列索引小于总组数，则返回对应的组
                         if (columnIndex < totalGroups) {
                             const group = allGroups[columnIndex];
                             const result = {};
-                            result[group.groupName] = group.hosts;
+                            result[group.groupName] = group.links;
                             return result;
                         }
                         return {};
                     }
                     
                     // 如果组数大于列数，则计算每列应该显示多少组
-                    const groupsPerColumn = Math.ceil(totalGroups / 4); // 改为4列
+                    const groupsPerColumn = Math.ceil(totalGroups / 4); // 4列布局
                     const startIdx = columnIndex * groupsPerColumn;
                     const endIdx = Math.min(startIdx + groupsPerColumn, totalGroups);
                     
@@ -310,7 +290,7 @@ $linksData = fetchLinks();
                     // 构建结果对象
                     const result = {};
                     columnGroups.forEach(group => {
-                        result[group.groupName] = group.hosts;
+                        result[group.groupName] = group.links;
                     });
                     
                     return result;
@@ -318,16 +298,17 @@ $linksData = fetchLinks();
                 
                 // 获取链接的当前激活URL（内网或外网）
                 getActiveUrl(link) {
-                    // 默认使用内网链接，除非useOuterLink为true且存在外网链接
                     if (link.useOuterLink && link.outerhost) {
-                        return this.buildOuterUrl(link);
-                    } else if (link.host_ip) {
-                        return this.buildLanUrl(link);
-                    } else if (link.outerhost) {
-                        // 如果只有外网链接则使用外网
-                        return this.buildOuterUrl(link);
+                        return (link.outerprotocol || 'http') + '://' + 
+                               link.outerhost + 
+                               (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + 
+                               (link.outerDir ? '/' + link.outerDir : '');
+                    } else {
+                        return (link.lanprotocol || 'http') + '://' + 
+                               link.host_ip + 
+                               (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + 
+                               (link.lanDir ? '/' + link.lanDir : '');
                     }
-                    return '#';
                 },
                 
                 // 打开链接
@@ -370,6 +351,14 @@ $linksData = fetchLinks();
                     const errorMessage = document.getElementById('error-message');
                     errorMessage.textContent = message;
                     errorContainer.style.display = 'block';
+                },
+                
+                // 切换网络（内网/外网）
+                toggleNetwork(event, link) {
+                    // 阻止事件冒泡，避免触发卡片的点击事件
+                    event.stopPropagation();
+                    // 切换网络状态
+                    link.useOuterLink = !link.useOuterLink;
                 }
             }
         });

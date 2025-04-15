@@ -5,47 +5,52 @@
         <!-- 固定4列布局 -->
         <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
             <!-- 该列应该显示的hostGroup组 -->
-            <div v-for="(groupData, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
-                <!-- 该hostGroup中的所有host -->
-                <div v-for="(host, hostIndex) in groupData" :key="'host-'+host.groupKey" class="host-group">
-                    <h3 class="host-title" v-if="host.links.length > 0">
-                        {{ host.links[0].host_name }} 
-                        <span class="host-ip" v-if="host.links[0].host_ip">({{ host.links[0].host_ip }})</span>
-                    </h3>
-                    <div class="cards-column">
-                        <div v-for="(link, index) in host.links" :key="link.link_id" class="card-container">
-                            <div class="card" 
-                                 :style="link.customStyle && link.customStyle.contentStyle ? 
-                                    {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}"
-                                 @click="openLink(link)">
-                                <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
-                                    <div class="card-title">
-                                        <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
-                                        <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
-                                        <h3>
-                                            {{ link.page_name }}
-                                            <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
-                                        </h3>
-                                        <!-- 只显示链接文字，不包含图标 -->
-                                        <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
-                                            {{ link.useOuterLink ? 
-                                               (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.outerDir ? '/' + link.outerDir : '')) : 
-                                               (link.host_ip + (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + (link.lanDir ? '/' + link.lanDir : '')) 
-                                            }}
-                                        </span>
-                                    </div>
-                                    <div class="card-info">
-                                        <p class="info-text">{{ link.page_info }}</p>
-                                        <div class="card-actions" v-if="link.host_ip || link.outerhost">
-                                            <!-- 仅当同时有内外网链接时显示切换器 -->
-                                            <div v-if="link.host_ip && link.outerhost" 
-                                                 class="network-toggle" 
-                                                 :class="{ 'is-lan': !link.useOuterLink }"
-                                                 @click.stop="link.useOuterLink = !link.useOuterLink">
-                                                <div class="toggle-slider"></div>
-                                                <div class="toggle-text-left" v-if="link.useOuterLink">外網</div>
-                                                <div class="toggle-text-right" v-else>內網</div>
+            <div v-for="(links, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
+                <!-- 该hostGroup的标题 -->
+                <h3 class="hostgroup-title" v-if="links.length > 0">{{ groupName }}</h3>
+                <div class="cards-column">
+                    <div v-for="(link, index) in links" :key="link.link_id" class="card-container">
+                        <div class="card" 
+                             :style="link.customStyle && link.customStyle.contentStyle ? 
+                                {'--card-bg': link.customStyle.contentStyle.backgroundColor} : {}"
+                             @click="openLink(link)">
+                            <div class="card-header" :style="link.customStyle && link.customStyle.contentStyle">
+                                <div class="card-title">
+                                    <i v-if="link.customStyle && link.customStyle.icon" :class="link.customStyle.icon"></i>
+                                    <span v-else class="number">{{ String(index + 1).padStart(2, '0') }}</span>
+                                    <h3>
+                                        {{ link.page_name }}
+                                        <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
+                                    </h3>
+                                    <!-- 只显示链接文字，不包含图标 -->
+                                    <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
+                                        {{ link.useOuterLink ? 
+                                           (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.outerDir ? '/' + link.outerDir : '')) : 
+                                           (link.host_ip + (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + (link.lanDir ? '/' + link.lanDir : '')) 
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="card-info">
+                                    <p class="info-text">{{ link.page_info }}</p>
+                                    <div class="item-content">
+                                        <div class="links-wrap">
+                                            <div class="toggle-wrap">
+                                                <div class="network-toggle" :class="{'is-lan': !link.useOuterLink}" @click="toggleNetwork($event, link)">
+                                                    <div class="toggle-slider">
+                                                        <i :class="['fas', !link.useOuterLink ? 'fa-home' : 'fa-globe']"></i>
+                                                    </div>
+                                                    <span v-if="!link.useOuterLink" class="toggle-text-left">
+                                                        {{ link.host_ip }}{{ link.lanport && link.lanport != 80 ? ':' + link.lanport : '' }}
+                                                    </span>
+                                                    <span v-else class="toggle-text-right">
+                                                        {{ link.outerhost }}{{ link.outerport && link.outerport != 80 ? ':' + link.outerport : '' }}
+                                                    </span>
+                                                </div>
                                             </div>
+                                            <a class="link-btn" @click.stop="openLink(link)" :title="getActiveUrl(link)">
+                                                <i class="fas fa-link"></i>
+                                                <span class="btn-text">打开</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -89,22 +94,13 @@
     margin-bottom: 30px;
 }
 
-.host-group {
-    margin-bottom: 20px;
-}
-
-.host-title {
+.hostgroup-title {
     margin: 15px 0 10px 0;
     padding-bottom: 5px;
     border-bottom: 2px solid #eee;
     color: #333;
-    font-size: 18px;
-}
-
-.host-ip {
-    color: #777;
-    font-weight: normal;
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .cards-column {
@@ -236,60 +232,66 @@
 }
 
 /* 网络切换开关 */
-.network-toggle {
-    width: 60px;
-    height: 30px;
-    border-radius: 15px;
-    background-color: #ff6b6b;
+.toggle-wrap {
     position: relative;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.network-toggle {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: auto;
+    min-width: 120px;
+    height: 26px;
+    background-color: #4CAF50;
+    border-radius: 13px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: background-color 0.3s;
+    padding: 0 10px 0 30px;
+    box-sizing: border-box;
+    color: white;
+    font-size: 12px;
 }
 
 .network-toggle.is-lan {
-    background-color: #82ca9d;
+    background-color: #2196F3;
+    padding: 0 30px 0 10px;
+    justify-content: flex-end;
 }
 
 .toggle-slider {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background-color: white;
     position: absolute;
+    width: 22px;
+    height: 22px;
+    background-color: white;
+    border-radius: 50%;
     top: 2px;
-    right: 2px;
-    transition: all 0.3s ease;
+    left: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: left 0.3s;
     z-index: 2;
 }
 
-.network-toggle.is-lan .toggle-slider {
-    right: calc(100% - 28px);
+.is-lan .toggle-slider {
+    left: calc(100% - 24px);
 }
 
-.toggle-text-left {
-    position: absolute;
-    color: white;
+.toggle-slider i {
     font-size: 12px;
-    font-weight: bold;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1;
+    color: #555;
 }
 
-.toggle-text-right {
-    position: absolute;
-    color: white;
+.toggle-text-left, .toggle-text-right {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
     font-size: 12px;
-    font-weight: bold;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1;
+    font-weight: 500;
 }
 
 /* 响应式设计 */
