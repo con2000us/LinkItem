@@ -59,8 +59,8 @@
                                                 
                                                 <!-- 不可切換的外網顯示 -->
                                                 <div v-else-if="link.lanport === '0'" class="network-static is-outer">
-                                                    <div class="static-icon"><i class="fas fa-globe"></i></div>
-                                                    <span class="static-text">
+                                                    <div class="static-icon absolute-left"><i class="fas fa-globe"></i></div>
+                                                    <span class="static-text outer-text">
                                                         {{ link.outerhost }}{{ link.outerport && link.outerport != 80 ? ':' + link.outerport : '' }}
                                                     </span>
                                                     <i class="fas fa-lock static-lock static-lock-right" title="僅可使用外網"></i>
@@ -340,7 +340,6 @@
     box-shadow: 0 3px 8px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
 }
 
 .network-static.is-lan {
@@ -352,8 +351,10 @@
 
 .network-static.is-outer {
     background-color: #81C784;
-    padding-left: 8px;
-    padding-right: 5px;
+    padding-left: 0;
+    padding-right: 8px;
+    position: relative;
+    overflow: visible;
 }
 
 .network-static:hover {
@@ -410,6 +411,22 @@
 
 .network-static:hover .static-lock {
     opacity: 1;
+}
+
+.absolute-left {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    border-top-left-radius: 13px;
+    border-bottom-left-radius: 13px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+    z-index: 5;
+}
+
+.outer-text {
+    margin-left: 26px; /* 為圖標留出空間 */
 }
 
 /* 响应式设计 */
