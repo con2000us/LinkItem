@@ -36,18 +36,18 @@ $linksData = fetchLinks();
                 links: []
             },
             computed: {
-                // 按照 lanhost 分组链接
+                // 按照 lanhost (host_id) 分组链接
                 groupedLinks() {
                     const groups = {};
                     const sortedLinks = [...this.links];
                     
                     // 按 lanhost 分组
                     sortedLinks.forEach(link => {
-                        const host = link.lanhost || 'other';
-                        if (!groups[host]) {
-                            groups[host] = [];
+                        const hostId = link.lanhost || 'other';
+                        if (!groups[hostId]) {
+                            groups[hostId] = [];
                         }
-                        groups[host].push(link);
+                        groups[hostId].push(link);
                     });
                     
                     // 转换为数组格式返回
@@ -76,7 +76,9 @@ $linksData = fetchLinks();
             methods: {
                 // 构建内网链接
                 buildLanUrl(link) {
-                    let url = 'http://' + link.lanhost;
+                    if (!link.host_ip) return '#';
+                    
+                    let url = 'http://' + link.host_ip;
                     if (link.lanport && link.lanport != 80) {
                         url += ':' + link.lanport;
                     }

@@ -2,7 +2,7 @@
     <h1>链接导航</h1>
     
     <div v-for="(group, groupIndex) in groupedLinks" :key="'group-'+groupIndex" class="host-group">
-        <h3 class="host-title" v-if="group.length > 0">{{ group[0].lanhost }}</h3>
+        <h3 class="host-title" v-if="group.length > 0">{{ group[0].host_name }} <span class="host-ip">({{ group[0].host_ip }})</span></h3>
         <div class="arrow-cards-grid">
             <div v-for="(link, index) in group" :key="link.link_id" class="card-container">
                 <div class="card" 
@@ -17,7 +17,7 @@
                         <p>{{ link.page_info }}</p>
                     </div>
                     <div class="card-actions">
-                        <a v-if="link.lanhost" :href="buildLanUrl(link)" class="lan-link" target="_blank">内网链接</a>
+                        <a v-if="link.host_ip" :href="buildLanUrl(link)" class="lan-link" target="_blank">内网链接</a>
                         <a v-if="link.outerhost" :href="buildOuterUrl(link)" class="outer-link" target="_blank">外网链接</a>
                     </div>
                 </div>
@@ -44,6 +44,12 @@
     border-bottom: 2px solid #eee;
     color: #333;
     font-size: 18px;
+}
+
+.host-ip {
+    color: #777;
+    font-weight: normal;
+    font-size: 16px;
 }
 
 .arrow-cards-grid {
