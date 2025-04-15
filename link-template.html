@@ -29,7 +29,7 @@
                                         <a :href="getActiveUrl(link)" class="link-content" :class="{ 'is-lan': !link.useOuterLink }" target="_blank">
                                             {{ link.useOuterLink ? 
                                                (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.dir ? '/' + link.dir : '')) : 
-                                               (link.host_ip + (link.host_port && link.host_port != 80 ? ':' + link.host_port : '') + (link.dir ? '/' + link.dir : '')) 
+                                               (link.host_ip + (link.port && link.port != 80 ? ':' + link.port : '') + (link.dir ? '/' + link.dir : '')) 
                                             }}
                                             <i class="fas fa-link"></i>
                                         </a>
