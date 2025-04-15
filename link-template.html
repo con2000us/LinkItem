@@ -50,6 +50,7 @@
                                                     <span class="static-text">
                                                         {{ link.host_ip }}{{ link.lanport && link.lanport != 80 ? ':' + link.lanport : '' }}
                                                     </span>
+                                                    <i class="fas fa-lock static-lock" title="僅可使用內網"></i>
                                                 </div>
                                                 
                                                 <!-- 不可切換的外網顯示 -->
@@ -58,6 +59,7 @@
                                                     <span class="static-text">
                                                         {{ link.outerhost }}{{ link.outerport && link.outerport != 80 ? ':' + link.outerport : '' }}
                                                     </span>
+                                                    <i class="fas fa-lock static-lock" title="僅可使用外網"></i>
                                                 </div>
                                             </div>
                                         </div>
@@ -333,18 +335,35 @@
     font-size: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 2px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    background-color: #607D8B;
+    position: relative;
+    overflow: hidden;
+}
+
+.network-static::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 1;
+}
+
+.network-static.is-lan {
+    background-color: #7986CB;
+    border-left: 3px solid #3F51B5;
+}
+
+.network-static.is-outer {
+    background-color: #81C784;
+    border-left: 3px solid #388E3C;
 }
 
 .network-static:hover {
     box-shadow: 0 3px 6px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
-}
-
-.network-static.is-lan {
-    background-color: #2196F3;
-}
-
-.network-static.is-outer {
-    background-color: #4CAF50;
+    filter: brightness(1.05);
 }
 
 .static-icon {
@@ -370,6 +389,16 @@
     text-overflow: ellipsis;
     max-width: 150px;
     font-weight: 500;
+}
+
+.static-lock {
+    margin-left: 8px;
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.network-static:hover .static-lock {
+    opacity: 1;
 }
 
 /* 响应式设计 */
