@@ -54,22 +54,35 @@ $linksData = fetchLinks();
                 links: []
             },
             computed: {
-                // 按照 lanhost (host_id) 分组链接
-                groupedLinks() {
-                    const groups = {};
-                    const sortedLinks = [...this.links];
+                // 首先按照 hostGroup 分组，然后在每个组内按照 lanhost (host_id) 分组链接
+                hostGroupedLinks() {
+                    const groupsByHostGroup = {};
                     
-                    // 按 lanhost 分组
-                    sortedLinks.forEach(link => {
-                        const hostId = link.lanhost || 'other';
-                        if (!groups[hostId]) {
-                            groups[hostId] = [];
+                    // 先按 hostGroup 分组
+                    this.links.forEach(link => {
+                        const hostGroup = link.hostGroup || '未分组';
+                        if (!groupsByHostGroup[hostGroup]) {
+                            groupsByHostGroup[hostGroup] = {};
                         }
-                        groups[hostId].push(link);
+                        
+                        // 然后在每个 hostGroup 内按 lanhost 再次分组
+                        const hostId = link.lanhost || 'other';
+                        if (!groupsByHostGroup[hostGroup][hostId]) {
+                            groupsByHostGroup[hostGroup][hostId] = [];
+                        }
+                        groupsByHostGroup[hostGroup][hostId].push(link);
                     });
                     
-                    // 转换为数组格式返回
-                    return Object.values(groups);
+                    // 转换格式为更易于遍历的格式
+                    const result = {};
+                    for (const [groupName, hosts] of Object.entries(groupsByHostGroup)) {
+                        result[groupName] = Object.entries(hosts).map(([hostId, links]) => ({
+                            groupKey: hostId,
+                            links: links
+                        }));
+                    }
+                    
+                    return result;
                 }
             },
             created() {
@@ -98,6 +111,18 @@ $linksData = fetchLinks();
                 }
             },
             methods: {
+                // 为每列获取主机组
+                getHostsForColumn(hosts, columnIndex) {
+                    if (!hosts || !Array.isArray(hosts)) return [];
+                    
+                    // 每列最多显示5个host
+                    const hostsPerColumn = 5;
+                    const startIndex = columnIndex * hostsPerColumn;
+                    const endIndex = startIndex + hostsPerColumn;
+                    
+                    return hosts.slice(startIndex, endIndex);
+                },
+                
                 // 构建内网链接
                 buildLanUrl(link) {
                     if (!link.host_ip) return '#';
