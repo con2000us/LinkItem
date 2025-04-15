@@ -25,9 +25,11 @@
                                             {{ link.page_name }}
                                             <span v-if="link.outerport && link.outerport != 80" class="outer-port"></span>
                                         </h3>
-                                        <span class="link-content" :class="{ 'is-lan': !link.useOuterLink }">
+                                        <!-- 点击网址文字直接打开链接 -->
+                                        <a :href="getActiveUrl(link)" class="link-content" :class="{ 'is-lan': !link.useOuterLink }" target="_blank">
                                             {{ link.useOuterLink ? link.outerhost : link.host_ip }}
-                                        </span>
+                                            <i class="fas fa-link"></i>
+                                        </a>
                                     </div>
                                     <div class="card-info">
                                         <p class="info-text">{{ link.page_info }}</p>
@@ -37,15 +39,10 @@
                                                  class="network-toggle" 
                                                  :class="{ 'is-lan': !link.useOuterLink }"
                                                  @click.stop="link.useOuterLink = !link.useOuterLink">
-                                                <div class="toggle-slider">
-                                                    <div class="toggle-text">{{ link.useOuterLink ? '外网' : '内网' }}</div>
-                                                </div>
+                                                <div class="toggle-slider"></div>
+                                                <div class="toggle-text-left" v-if="link.useOuterLink">外网</div>
+                                                <div class="toggle-text-right" v-else>内网</div>
                                             </div>
-                                            
-                                            <!-- 链接按钮 -->
-                                            <a :href="getActiveUrl(link)" class="url-btn" target="_blank">
-                                                <i class="fas fa-link"></i>
-                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -175,6 +172,21 @@
     opacity: 0.9;
     margin-left: auto;
     text-align: right;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.link-content:hover {
+    text-decoration: underline;
+    opacity: 1;
+}
+
+.link-content i {
+    font-size: 12px;
 }
 
 .link-content.is-lan {
@@ -216,78 +228,24 @@
     right: calc(100% - 28px);
 }
 
-.toggle-text {
+.toggle-text-left {
     position: absolute;
     color: white;
     font-size: 12px;
     font-weight: bold;
-    width: 100%;
-    text-align: center;
+    left: 6px;
     line-height: 26px;
     z-index: 1;
 }
 
-.network-toggle.is-lan .toggle-text {
-    padding-right: 20px;
-}
-
-.network-toggle:not(.is-lan) .toggle-text {
-    padding-left: 20px;
-}
-
-/* 链接按钮 */
-.url-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
+.toggle-text-right {
+    position: absolute;
     color: white;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.url-btn:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.card-title i {
-    font-size: 24px;
-    margin-right: 12px;
-    transition: transform 0.3s ease;
-}
-
-.card-title .number {
-    font-size: 20px;
+    font-size: 12px;
     font-weight: bold;
-    margin-right: 12px;
-}
-
-.card:hover .card-title i {
-    transform: scale(1.15);
-    animation: pulse 1.5s infinite alternate;
-}
-
-.card-title h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    flex: 1;
-}
-
-/* 动画效果 */
-@keyframes pulse {
-    0% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1.2);
-    }
+    right: 6px;
+    line-height: 26px;
+    z-index: 1;
 }
 
 /* 响应式设计 */
