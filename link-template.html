@@ -28,8 +28,8 @@
                                         <!-- 点击网址文字直接打开链接 -->
                                         <a :href="getActiveUrl(link)" class="link-content" :class="{ 'is-lan': !link.useOuterLink }" target="_blank">
                                             {{ link.useOuterLink ? 
-                                               (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.dir ? '/' + link.dir : '')) : 
-                                               (link.host_ip + (link.port && link.port != 80 ? ':' + link.port : '') + (link.dir ? '/' + link.dir : '')) 
+                                               (link.outerhost + (link.outerport && link.outerport != 80 ? ':' + link.outerport : '') + (link.outerDir ? '/' + link.outerDir : '')) : 
+                                               (link.host_ip + (link.lanport && link.lanport != 80 ? ':' + link.lanport : '') + (link.lanDir ? '/' + link.lanDir : '')) 
                                             }}
                                             <i class="fas fa-link"></i>
                                         </a>
