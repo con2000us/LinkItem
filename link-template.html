@@ -6,8 +6,6 @@
         <div v-for="colIndex in 4" :key="'col-'+colIndex" class="grid-column">
             <!-- 该列应该显示的hostGroup组 -->
             <div v-for="(groupData, groupName) in getHostGroupsForColumn(colIndex-1)" :key="'hostgroup-'+groupName" class="hostgroup-container">
-                <h2 class="hostgroup-title">{{ groupName || '未分组' }}</h2>
-                
                 <!-- 该hostGroup中的所有host -->
                 <div v-for="(host, hostIndex) in groupData" :key="'host-'+host.groupKey" class="host-group">
                     <h3 class="host-title" v-if="host.links.length > 0">
@@ -62,15 +60,6 @@
 
 .hostgroup-container {
     margin-bottom: 30px;
-}
-
-.hostgroup-title {
-    margin: 0 0 15px 0;
-    padding-bottom: 8px;
-    border-bottom: 3px solid #333;
-    color: #222;
-    font-size: 22px;
-    text-align: center;
 }
 
 .host-group {
