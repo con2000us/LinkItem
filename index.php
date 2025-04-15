@@ -1,4 +1,8 @@
 <?php
+// 启用错误报告
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 include 'fetch_links.php';
 
@@ -22,9 +26,23 @@ $linksData = fetchLinks();
             padding: 0;
             background-color: #f5f7fa;
         }
+        .error-container {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            margin: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
+    <!-- 错误信息显示区域 -->
+    <div class="error-container" id="error-container" style="display: none;">
+        <h3>发生错误</h3>
+        <p id="error-message"></p>
+    </div>
+
     <!-- 链接模板将在这里渲染 -->
     <?php include 'link-template.html'; ?>
 
@@ -55,23 +73,29 @@ $linksData = fetchLinks();
                 }
             },
             created() {
-                // 解析从 PHP 获取的数据
-                let rawLinks = <?php echo $linksData; ?>;
-                
-                // 处理每个链接项的 cellCSS
-                this.links = rawLinks.map(link => {
-                    // 尝试解析 cellCSS JSON
-                    if (link.cellCSS && link.cellCSS.trim() !== '') {
-                        try {
-                            const cssData = JSON.parse(link.cellCSS);
-                            link.customStyle = cssData;
-                        } catch (e) {
-                            console.error('解析 cellCSS 时出错:', e);
-                            link.customStyle = null;
+                try {
+                    // 解析从 PHP 获取的数据
+                    let rawLinks = <?php echo $linksData ? $linksData : '[]'; ?>;
+                    
+                    // 处理每个链接项的 cellCSS
+                    this.links = rawLinks.map(link => {
+                        // 尝试解析 cellCSS JSON
+                        if (link.cellCSS && link.cellCSS.trim() !== '') {
+                            try {
+                                const cssData = JSON.parse(link.cellCSS);
+                                link.customStyle = cssData;
+                            } catch (e) {
+                                console.error('解析 cellCSS 时出错:', e);
+                                this.showError('解析 cellCSS 时出错: ' + e.message);
+                                link.customStyle = null;
+                            }
                         }
-                    }
-                    return link;
-                });
+                        return link;
+                    });
+                } catch (error) {
+                    console.error('初始化数据时出错:', error);
+                    this.showError('初始化数据时出错: ' + error.message);
+                }
             },
             methods: {
                 // 构建内网链接
@@ -98,9 +122,26 @@ $linksData = fetchLinks();
                         url += '/' + link.outerDir;
                     }
                     return url;
+                },
+                
+                // 显示错误信息
+                showError(message) {
+                    const errorContainer = document.getElementById('error-container');
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = message;
+                    errorContainer.style.display = 'block';
                 }
             }
         });
+        
+        // 捕获全局 JavaScript 错误
+        window.onerror = function(message, source, lineno, colno, error) {
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = `JavaScript 错误: ${message} (${source}: ${lineno}:${colno})`;
+            errorContainer.style.display = 'block';
+            return false;
+        };
     </script>
 </body>
 </html>
